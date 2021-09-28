@@ -22,8 +22,6 @@ ip = "192.168.8.1"
 
 # datetime object containing current date and time
 now = datetime.now() 
-
-# dd/mm/YY H:M:S
 dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 print("date and time =", dt_string)	
 msg = dt_string + " " + msg
@@ -45,7 +43,6 @@ r = session.post( "http://%s/api/sms/send-sms" % ip, data=data, headers=headers 
 print( "send-sms", r.headers, r.content)
 
 #error
-error_string = " token QOd0VeXC40uIn1PZnr3UTx0Gt90OAZM7XEy8A21IDHnXD3QDl03fIhcOjaYzhA6X-XSS-Protectionmode=blockCont nload-Optionsoope-Type-OptionOptions': 'SAMEORIGIN', 'Content-Type': 'text/html'}, '<?xml version=>\r\n<error>\n<code>125003</code>\n<message/>\n</error>\n')"
 search_string = "error"
 search_issue = r.content.find(search_string)
 
