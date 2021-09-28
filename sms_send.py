@@ -1,9 +1,33 @@
 import requests, sys
 import xml.etree.ElementTree as ET
+from datetime import datetime
+import time
+# check python version: python --version 
+#
+# when python not instsall requirements install python 
+# https://projects.raspberrypi.org/en/projects/generic-python-install-python3
+#
+# execute file with variable
+# example string: python sms_send.py +491622807261 "Hallo Joachim"
 
-msg = "From python for Chef"
-phone = "+4916228" #To fill
-ip = "192.168.8.1" #Dongle ip
+phone = sys.argv[1]
+msg = sys.argv[2]
+
+print("Phone " + str(phone))
+print("msg " + str(msg))
+
+# IP Adress of the Stick
+ip = "192.168.8.1" 
+
+
+# datetime object containing current date and time
+now = datetime.now() 
+
+# dd/mm/YY H:M:S
+dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+print("date and time =", dt_string)	
+msg = dt_string + " " + msg
+
 
 # get session
 session = requests.Session()
@@ -13,8 +37,27 @@ root = ET.fromstring(r.content)
 token = root[0].text
 print("token " +str(token))
 
+
 # send sms
 headers = { "__RequestVerificationToken": token, "Content-Type": "text/xml" }
 data = "<request><Index>-1</Index><Phones><Phone>%s</Phone></Phones><Sca/><Content>%s</Content><Length>%d</Length><Reserved>1</Reserved><Date>$TIME</Date></request>" % ( phone, msg, len(msg) )
 r = session.post( "http://%s/api/sms/send-sms" % ip, data=data, headers=headers )
 print( "send-sms", r.headers, r.content)
+
+#error
+error_string = " token QOd0VeXC40uIn1PZnr3UTx0Gt90OAZM7XEy8A21IDHnXD3QDl03fIhcOjaYzhA6X-XSS-Protectionmode=blockCont nload-Optionsoope-Type-OptionOptions': 'SAMEORIGIN', 'Content-Type': 'text/html'}, '<?xml version=>\r\n<error>\n<code>125003</code>\n<message/>\n</error>\n')"
+search_string = "error"
+search_issue = r.content.find(search_string)
+
+if search_issue > 0:
+    i = 0
+    while i < 1:
+        headers = { "__RequestVerificationToken": token, "Content-Type": "text/xml" }
+        data = "<request><Index>-1</Index><Phones><Phone>%s</Phone></Phones><Sca/><Content>%s</Content><Length>%d</Length><Reserved>1</Reserved><Date>$TIME</Date></request>" % ( phone, msg, len(msg) )
+        r = session.post( "http://%s/api/sms/send-sms" % ip, data=data, headers=headers )
+        print( "send-sms", r.headers, r.content) 
+        search_issue = r.content.find(search_string)
+        time.sleep(10)
+        if search_issue == -1:
+            i += 1
+
