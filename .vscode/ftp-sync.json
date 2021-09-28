@@ -1,0 +1,27 @@
+{
+    "remotePath": "./Documents/",
+    "host": "10.101.41.151",
+    "username": "pi",
+    "password": "Kerstin01!r",
+    "port": "",
+    "secure": false,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "agent": null,
+    "allow": [],
+    "ignore": [
+        "\\.vscode",
+        "\\.git",
+        "\\.DS_Store"
+    ],
+    "generatedFiles": {
+        "extensionsToInclude": [
+            ""
+        ],
+        "path": ""
+    }
+}
