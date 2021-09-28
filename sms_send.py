@@ -2,7 +2,7 @@ import requests, sys
 import xml.etree.ElementTree as ET
 
 msg = "From python for Chef"
-phone = "+491622807261" #To fill
+phone = "+4916228" #To fill
 ip = "192.168.8.1" #Dongle ip
 
 # get session
