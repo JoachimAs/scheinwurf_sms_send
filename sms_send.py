@@ -1,60 +1,28 @@
-import requests, sys
-import xml.etree.ElementTree as ET
-from datetime import datetime
-import time
-# check python version: python --version 
-#
-# when python not instsall requirements install python 
-# https://projects.raspberrypi.org/en/projects/generic-python-install-python3
-#
-# execute file with variable
-# example string: python sms_send.py +491622807261 "Hallo Joachim"
-
-phone = sys.argv[1]
-msg = sys.argv[2]
-
-print("Phone " + str(phone))
-print("msg " + str(msg))
-
-# IP Adress of the Stick
-ip = "192.168.8.1" 
+#!/usr/bin/env python3
+"""
+Example code on how to send a SMS, you can try it by running:
+sudo apt install python3 idle3
+pip3 install huawei-lte-api
+nach einem Neustart muss gewartet werden
+es können nicht mehrere SMS hintereinandener versendet werden
+python3 sms_send.py http://192.168.8.1/ +491622807261 "Hello world"
+"""
+from argparse import ArgumentParser
+from huawei_lte_api.Connection import Connection
+from huawei_lte_api.Client import Client
 
 
-# datetime object containing current date and time
-now = datetime.now() 
-dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-print("date and time =", dt_string)	
-msg = dt_string + " " + msg
+parser = ArgumentParser()
+parser.add_argument('url', type=str)
+parser.add_argument('phone_number', type=str)
+parser.add_argument('message', type=str)
+parser.add_argument('--username', type=str)
+parser.add_argument('--password', type=str)
+args = parser.parse_args()
 
-
-# get session
-session = requests.Session()
-# get token
-r = session.get("http://%s/api/webserver/token" % ip)
-root = ET.fromstring(r.content)
-token = root[0].text
-print("token " +str(token))
-
-
-# send sms
-headers = { "__RequestVerificationToken": token, "Content-Type": "text/xml" }
-data = "<request><Index>-1</Index><Phones><Phone>%s</Phone></Phones><Sca/><Content>%s</Content><Length>%d</Length><Reserved>1</Reserved><Date>$TIME</Date></request>" % ( phone, msg, len(msg) )
-r = session.post( "http://%s/api/sms/send-sms" % ip, data=data, headers=headers )
-print( "send-sms", r.headers, r.content)
-
-#error
-search_string = "error"
-search_issue = r.content.find(search_string)
-
-if search_issue > 0:
-    i = 0
-    while i < 1:
-        headers = { "__RequestVerificationToken": token, "Content-Type": "text/xml" }
-        data = "<request><Index>-1</Index><Phones><Phone>%s</Phone></Phones><Sca/><Content>%s</Content><Length>%d</Length><Reserved>1</Reserved><Date>$TIME</Date></request>" % ( phone, msg, len(msg) )
-        r = session.post( "http://%s/api/sms/send-sms" % ip, data=data, headers=headers )
-        print( "send-sms", r.headers, r.content) 
-        search_issue = r.content.find(search_string)
-        time.sleep(10)
-        if search_issue == -1:
-            i += 1
-
+with Connection(args.url, username=args.username, password=args.password) as connection:
+    client = Client(connection)
+    if client.sms.send_sms([args.phone_number], args.message) == 'OK':
+        print('SMS was send successfully')
+    else:
+        print('Error')
